@@ -26,6 +26,22 @@ export class JobServiceController {
     return this.jobServiceService.getAllJobs();
   }
 
+  @MessagePattern({ cmd: JobServiceEvents.GetJobById })
+  async getJobById(
+    @Ctx() context: RmqContext,
+    @Payload() payload: { jobId: string },
+  ): Promise<Job> {
+    try {
+      acknowledgeMessage(context);
+      this.logger.log(
+        `${JobServiceEvents.GetJobById} event received: Fetching job with id: ${payload.jobId}`,
+      );
+      return this.jobServiceService.getJobById(payload.jobId);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   @MessagePattern({ cmd: JobServiceEvents.CreateJob })
   async createJob(
     @Ctx() context: RmqContext,

@@ -7,6 +7,7 @@ import {
   Get,
   Inject,
   Logger,
+  Param,
   Post,
   UsePipes,
   ValidationPipe,
@@ -33,6 +34,30 @@ export class JobController {
       return jobResponse;
     } catch (error) {
       this.logger.error('Failed to fetch jobs', error.stack);
+      throw error;
+    }
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get a job by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the job with the specified ID',
+  })
+  @ApiResponse({ status: 404, description: 'Job not found' })
+  async getJobById(@Param('id') id: string): Promise<Job> {
+    try {
+      this.logger.log(
+        `Relaying fetch job request for ID: ${id} to job-microservice`,
+      );
+      const jobResponse = await this.jobService
+        .send({ cmd: JobServiceEvents.GetJobById }, { jobId: id })
+        .toPromise();
+
+      this.logger.log(`Successfully fetched job with ID: ${jobResponse.id}`);
+      return jobResponse;
+    } catch (error) {
+      this.logger.error(`Failed to fetch job with id: ${id}`, error.stack);
       throw error;
     }
   }

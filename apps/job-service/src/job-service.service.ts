@@ -2,7 +2,7 @@ import { CreateJobDto } from '@app/shared/dtos/jobs/create-job.dto';
 import { UnsplashServiceEvents } from '@app/shared/enums/events';
 import { JobStatus } from '@app/shared/enums/JobStatus';
 import { Job } from '@app/shared/models/job';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { randomUUID } from 'crypto';
 
@@ -38,6 +38,15 @@ export class JobServiceService {
   getAllJobs() {
     this.logger.log('Retrieving all jobs');
     return Object.values(this.jobs);
+  }
+
+  getJobById(jobId: string) {
+    this.logger.log(`Retrieveing job of id - ${jobId}`);
+    if (!this.jobs[jobId]) {
+      this.logger.error(`No job of id - ${jobId} found`);
+      throw new NotFoundException(`Job with ID ${jobId} not found`);
+    }
+    return this.jobs[jobId];
   }
 
   private sendJobToUnsplash(job: Job) {
