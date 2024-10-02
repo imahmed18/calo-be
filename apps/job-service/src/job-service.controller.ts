@@ -10,6 +10,7 @@ import {
 import { CreateJobDto } from '@app/shared/dtos/jobs/create-job.dto';
 import { Job } from '@app/shared/models/job';
 import { JobServiceEvents } from '@app/shared/enums/events';
+import { acknowledgeMessage } from '@app/shared/utils';
 
 @Controller()
 export class JobServiceController {
@@ -18,9 +19,7 @@ export class JobServiceController {
 
   @MessagePattern({ cmd: JobServiceEvents.GetAllJobs })
   async getAllJobs(@Ctx() context: RmqContext): Promise<Job[]> {
-    const channel = context.getChannelRef();
-    const message = context.getMessage();
-    channel.ack(message);
+    acknowledgeMessage(context);
     this.logger.log(
       `${JobServiceEvents.GetAllJobs} event received: Fetching all jobs`,
     );
@@ -32,9 +31,7 @@ export class JobServiceController {
     @Ctx() context: RmqContext,
     @Payload() payload: CreateJobDto,
   ): Promise<Job> {
-    const channel = context.getChannelRef();
-    const message = context.getMessage();
-    channel.ack(message);
+    acknowledgeMessage(context);
     this.logger.log(
       `${JobServiceEvents.CreateJob} event received: Creating job with name: ${payload.name}`,
     );
