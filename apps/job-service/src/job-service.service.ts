@@ -29,7 +29,9 @@ export class JobServiceService {
     this.logger.log(`Created job with ID ${jobId}`);
     //call unsplash service and handle api errors
     this.sendJobToUnsplash(job);
-    this.logger.log(`Sent job ID ${jobId} to Unsplash for image retrieval`);
+    this.logger.log(
+      `Sent job ID ${jobId} to Unsplash service for image retrieval`,
+    );
     return job;
   }
 
@@ -41,7 +43,7 @@ export class JobServiceService {
   private sendJobToUnsplash(job: Job) {
     this.unsplashService.emit(UnsplashServiceEvents.EnrichJobWIthImage, job);
     this.logger.log(
-      `Emitted ${UnsplashServiceEvents.EnrichJobWIthImage} event for job ID ${job.id}`,
+      `Emitted ${UnsplashServiceEvents.EnrichJobWIthImage} event to Unsplash service for job ID ${job.id}`,
     );
   }
 

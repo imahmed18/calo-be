@@ -16,7 +16,7 @@ export class UnsplashServiceService {
   ) {}
 
   async updateJobWithImage(job: Job): Promise<any> {
-    this.logger.log(`Updating job ${job.id} with image from Unsplash`);
+    this.logger.log(`Enriching job of id - ${job.id} with image from Unsplash`);
     try {
       const imageData = await this.retrieveImage(job.category);
       const { id, slug, urls } = imageData;
@@ -26,10 +26,12 @@ export class UnsplashServiceService {
         data: { id, slug, urls },
       };
 
-      this.logger.log(`Successfully updated job ${job.id} with image data`);
+      this.logger.log(
+        `Successfully enriched job of id - ${job.id} with image data`,
+      );
       this.jobService.emit(JobServiceEvents.UpdateJob, updatedJob);
       this.logger.log(
-        `Emitted ${JobServiceEvents.UpdateJob} event for job ${job.id}`,
+        `Emitted ${JobServiceEvents.UpdateJob} event for job of id - ${job.id}`,
       );
     } catch (error) {
       this.logger.error(

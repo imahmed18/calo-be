@@ -21,7 +21,9 @@ export class JobServiceController {
     const channel = context.getChannelRef();
     const message = context.getMessage();
     channel.ack(message);
-    this.logger.log('Retrieving all jobs');
+    this.logger.log(
+      `${JobServiceEvents.GetAllJobs} event received: Fetching all jobs`,
+    );
     return this.jobServiceService.getAllJobs();
   }
 
@@ -34,14 +36,16 @@ export class JobServiceController {
     const message = context.getMessage();
     channel.ack(message);
     this.logger.log(
-      `Creating job with name: ${payload.name}, category: ${payload.category}`,
+      `${JobServiceEvents.CreateJob} event received: Creating job with name: ${payload.name}`,
     );
     return await this.jobServiceService.createJob(payload);
   }
 
   @EventPattern(JobServiceEvents.UpdateJob)
   async updateJob(@Payload() updatedJob: Job) {
-    this.logger.log(`Updating job with ID: ${updatedJob.id}`);
+    this.logger.log(
+      `${JobServiceEvents.UpdateJob} event received: Updating job with ID: ${updatedJob.id}`,
+    );
     this.jobServiceService.updateJobWithImage(updatedJob);
   }
 }

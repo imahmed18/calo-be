@@ -15,10 +15,11 @@ export class UnsplashServiceController {
   async updateJobWithImage(@Payload() job: Job, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const message = context.getMessage();
-    this.logger.log(`Received request to update job ${job.id} with image`);
+    this.logger.log(
+      `${UnsplashServiceEvents.EnrichJobWIthImage} event received: enriching job of id - ${job.id} with image`,
+    );
     try {
       channel.ack(message);
-      this.logger.log(`Acknowledged message for job ${job.id}`);
 
       this.unsplashServiceService.updateJobWithImage(job);
     } catch (error) {

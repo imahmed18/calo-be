@@ -6,6 +6,7 @@ import {
   Controller,
   Get,
   Inject,
+  Logger,
   Post,
   UsePipes,
   ValidationPipe,
@@ -15,17 +16,25 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('jobs')
 export class JobController {
+  private readonly logger = new Logger(JobController.name);
   constructor(@Inject('JOB_SERVICE') private jobService: ClientProxy) {}
 
   @Get()
   @ApiOperation({ summary: 'Get all jobs' })
   @ApiResponse({ status: 200, description: 'Returns a list of all jobs' })
   async getAllJobs(): Promise<Job[]> {
-    const jobResponse = await this.jobService
-      .send({ cmd: JobServiceEvents.GetAllJobs }, {})
-      .toPromise();
+    try {
+      this.logger.log('Relaying fetch all jobs request to job-microservice');
+      const jobResponse = await this.jobService
+        .send({ cmd: JobServiceEvents.GetAllJobs }, {})
+        .toPromise();
 
-    return jobResponse;
+      this.logger.log(`Successfully fetched ${jobResponse.length} jobs`);
+      return jobResponse;
+    } catch (error) {
+      this.logger.error('Failed to fetch jobs', error.stack);
+      throw error;
+    }
   }
 
   @Post()
@@ -37,10 +46,19 @@ export class JobController {
   })
   @ApiResponse({ status: 400, description: 'Validation failed' })
   async createJob(@Body() payload: CreateJobDto): Promise<Job> {
-    const jobResponse = await this.jobService
-      .send({ cmd: JobServiceEvents.CreateJob }, payload)
-      .toPromise();
+    try {
+      this.logger.log(
+        `Relaying create job request with name: ${payload.name} to job-microservice`,
+      );
+      const jobResponse = await this.jobService
+        .send({ cmd: JobServiceEvents.CreateJob }, payload)
+        .toPromise();
 
-    return jobResponse;
+      this.logger.log(`Successfully created job with ID: ${jobResponse.id}`);
+      return jobResponse;
+    } catch (error) {
+      this.logger.error('Failed to create job', error.stack);
+      throw error;
+    }
   }
 }
