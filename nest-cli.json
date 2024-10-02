@@ -36,6 +36,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/shared/tsconfig.lib.json"
       }
+    },
+    "unsplash-service": {
+      "type": "application",
+      "root": "apps/unsplash-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/unsplash-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/unsplash-service/tsconfig.app.json"
+      }
     }
   }
 }
