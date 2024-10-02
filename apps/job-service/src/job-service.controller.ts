@@ -9,13 +9,14 @@ import {
 } from '@nestjs/microservices';
 import { CreateJobDto } from '@app/shared/dtos/jobs/create-job.dto';
 import { Job } from '@app/shared/models/job';
+import { JobServiceEvents } from '@app/shared/enums/events';
 
 @Controller()
 export class JobServiceController {
   private readonly logger = new Logger(JobServiceController.name);
   constructor(private readonly jobServiceService: JobServiceService) {}
 
-  @MessagePattern({ cmd: 'get-all-jobs' })
+  @MessagePattern({ cmd: JobServiceEvents.GetAllJobs })
   async getAllJobs(@Ctx() context: RmqContext): Promise<Job[]> {
     const channel = context.getChannelRef();
     const message = context.getMessage();
@@ -24,7 +25,7 @@ export class JobServiceController {
     return this.jobServiceService.getAllJobs();
   }
 
-  @MessagePattern({ cmd: 'create-job' })
+  @MessagePattern({ cmd: JobServiceEvents.CreateJob })
   async createJob(
     @Ctx() context: RmqContext,
     @Payload() payload: CreateJobDto,
@@ -38,7 +39,7 @@ export class JobServiceController {
     return await this.jobServiceService.createJob(payload);
   }
 
-  @EventPattern('job-updated')
+  @EventPattern(JobServiceEvents.UpdateJob)
   async updateJob(@Payload() updatedJob: Job) {
     this.logger.log(`Updating job with ID: ${updatedJob.id}`);
     this.jobServiceService.updateJobWithImage(updatedJob);

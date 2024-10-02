@@ -1,4 +1,5 @@
 import { CreateJobDto } from '@app/shared/dtos/jobs/create-job.dto';
+import { JobServiceEvents } from '@app/shared/enums/events';
 import { Job } from '@app/shared/models/job';
 import {
   Body,
@@ -21,7 +22,7 @@ export class JobController {
   @ApiResponse({ status: 200, description: 'Returns a list of all jobs' })
   async getAllJobs(): Promise<Job[]> {
     const jobResponse = await this.jobService
-      .send({ cmd: 'get-all-jobs' }, {})
+      .send({ cmd: JobServiceEvents.GetAllJobs }, {})
       .toPromise();
 
     return jobResponse;
@@ -37,7 +38,7 @@ export class JobController {
   @ApiResponse({ status: 400, description: 'Validation failed' })
   async createJob(@Body() payload: CreateJobDto): Promise<Job> {
     const jobResponse = await this.jobService
-      .send({ cmd: 'create-job' }, payload)
+      .send({ cmd: JobServiceEvents.CreateJob }, payload)
       .toPromise();
 
     return jobResponse;

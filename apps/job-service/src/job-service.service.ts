@@ -1,4 +1,5 @@
 import { CreateJobDto } from '@app/shared/dtos/jobs/create-job.dto';
+import { UnsplashServiceEvents } from '@app/shared/enums/events';
 import { JobStatus } from '@app/shared/enums/JobStatus';
 import { Job } from '@app/shared/models/job';
 import { Inject, Injectable, Logger } from '@nestjs/common';
@@ -38,8 +39,10 @@ export class JobServiceService {
   }
 
   private sendJobToUnsplash(job: Job) {
-    this.unsplashService.emit('retrieve-image', job);
-    this.logger.log(`Emitted 'retrieve-image' event for job ID ${job.id}`);
+    this.unsplashService.emit(UnsplashServiceEvents.EnrichJobWIthImage, job);
+    this.logger.log(
+      `Emitted ${UnsplashServiceEvents.EnrichJobWIthImage} event for job ID ${job.id}`,
+    );
   }
 
   updateJobWithImage(updatedJob: Job) {

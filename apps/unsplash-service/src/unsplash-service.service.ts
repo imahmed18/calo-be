@@ -4,6 +4,7 @@ import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { Job } from '@app/shared/models/job';
 import { ClientProxy } from '@nestjs/microservices';
+import { JobServiceEvents } from '@app/shared/enums/events';
 
 @Injectable()
 export class UnsplashServiceService {
@@ -26,8 +27,10 @@ export class UnsplashServiceService {
       };
 
       this.logger.log(`Successfully updated job ${job.id} with image data`);
-      this.jobService.emit('job-updated', updatedJob);
-      this.logger.log(`Emitted 'job-updated' event for job ${job.id}`);
+      this.jobService.emit(JobServiceEvents.UpdateJob, updatedJob);
+      this.logger.log(
+        `Emitted ${JobServiceEvents.UpdateJob} event for job ${job.id}`,
+      );
     } catch (error) {
       this.logger.error(
         `Failed to update job ${job.id} with image: ${error.message}`,

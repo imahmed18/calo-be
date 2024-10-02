@@ -2,6 +2,7 @@ import { Controller, Logger } from '@nestjs/common';
 import { UnsplashServiceService } from './unsplash-service.service';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import { Job } from '@app/shared/models/job';
+import { UnsplashServiceEvents } from '@app/shared/enums/events';
 
 @Controller()
 export class UnsplashServiceController {
@@ -10,7 +11,7 @@ export class UnsplashServiceController {
     private readonly unsplashServiceService: UnsplashServiceService,
   ) {}
 
-  @EventPattern('retrieve-image')
+  @EventPattern(UnsplashServiceEvents.EnrichJobWIthImage)
   async updateJobWithImage(@Payload() job: Job, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const message = context.getMessage();
