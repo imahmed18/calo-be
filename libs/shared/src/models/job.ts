@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { JobStatus } from '../enums/JobStatus';
+import { ImageData } from '../types/const';
 
 export class Job {
   @ApiProperty({ description: 'Unique identifier for the job' })
@@ -21,5 +22,5 @@ export class Job {
     description: 'Data of the job execution, null if not yet completed',
     example: null,
   })
-  data: any;
+  data: ImageData | null;
 }

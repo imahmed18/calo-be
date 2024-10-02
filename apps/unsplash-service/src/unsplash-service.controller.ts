@@ -1,23 +1,30 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import { UnsplashServiceService } from './unsplash-service.service';
-import {
-  Ctx,
-  MessagePattern,
-  Payload,
-  RmqContext,
-} from '@nestjs/microservices';
+import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
+import { Job } from '@app/shared/models/job';
 
 @Controller()
 export class UnsplashServiceController {
+  private readonly logger = new Logger(UnsplashServiceController.name);
   constructor(
     private readonly unsplashServiceService: UnsplashServiceService,
   ) {}
 
-  @MessagePattern({ cmd: 'retrieve-image' })
-  async createJob(@Ctx() context: RmqContext, @Payload() payload: any) {
+  @EventPattern('retrieve-image')
+  async updateJobWithImage(@Payload() job: Job, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const message = context.getMessage();
-    channel.ack(message);
-    return { image: 'Image' };
+    this.logger.log(`Received request to update job ${job.id} with image`);
+    try {
+      channel.ack(message);
+      this.logger.log(`Acknowledged message for job ${job.id}`);
+
+      this.unsplashServiceService.updateJobWithImage(job);
+    } catch (error) {
+      this.logger.error(
+        `Failed to update job ${job.id} with image: ${error.message}`,
+        error.stack,
+      );
+    }
   }
 }
