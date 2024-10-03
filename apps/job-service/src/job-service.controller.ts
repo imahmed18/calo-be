@@ -19,11 +19,15 @@ export class JobServiceController {
 
   @MessagePattern({ cmd: JobServiceEvents.GetAllJobs })
   async getAllJobs(@Ctx() context: RmqContext): Promise<Job[]> {
-    acknowledgeMessage(context);
-    this.logger.log(
-      `${JobServiceEvents.GetAllJobs} event received: Fetching all jobs`,
-    );
-    return this.jobServiceService.getAllJobs();
+    try {
+      acknowledgeMessage(context);
+      this.logger.log(
+        `${JobServiceEvents.GetAllJobs} event received: Fetching all jobs`,
+      );
+      return this.jobServiceService.getAllJobs();
+    } catch (error) {
+      throw error;
+    }
   }
 
   @MessagePattern({ cmd: JobServiceEvents.GetJobById })
@@ -47,11 +51,15 @@ export class JobServiceController {
     @Ctx() context: RmqContext,
     @Payload() payload: CreateJobDto,
   ): Promise<Job> {
-    acknowledgeMessage(context);
-    this.logger.log(
-      `${JobServiceEvents.CreateJob} event received: Creating job with name: ${payload.name}`,
-    );
-    return await this.jobServiceService.createJob(payload);
+    try {
+      acknowledgeMessage(context);
+      this.logger.log(
+        `${JobServiceEvents.CreateJob} event received: Creating job with name: ${payload.name}`,
+      );
+      return await this.jobServiceService.createJob(payload);
+    } catch (error) {
+      throw error;
+    }
   }
 
   @EventPattern(JobServiceEvents.UpdateJob)

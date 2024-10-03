@@ -2,8 +2,9 @@ import { CreateJobDto } from '@app/shared/dtos/jobs/create-job.dto';
 import { UnsplashServiceEvents } from '@app/shared/enums/events';
 import { JobStatus } from '@app/shared/enums/JobStatus';
 import { Job } from '@app/shared/models/job';
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { HttpStatusCode } from 'axios';
 import { randomUUID } from 'crypto';
 
 @Injectable()
@@ -15,36 +16,55 @@ export class JobServiceService {
   ) {}
 
   async createJob(jobData: CreateJobDto) {
-    const jobId = randomUUID();
+    try {
+      const jobId = randomUUID();
 
-    const job: Job = {
-      id: jobId,
-      name: jobData.name,
-      category: jobData.category,
-      status: JobStatus.IN_PROGRESS,
-      data: null,
-    };
+      const job: Job = {
+        id: jobId,
+        name: jobData.name,
+        category: jobData.category,
+        status: JobStatus.IN_PROGRESS,
+        data: null,
+      };
 
-    this.jobs[jobId] = job;
-    this.logger.log(`Created job with ID ${jobId}`);
-    //call unsplash service and handle api errors
-    this.sendJobToUnsplash(job);
-    this.logger.log(
-      `Sent job ID ${jobId} to Unsplash service for image retrieval`,
-    );
-    return job;
+      this.jobs[jobId] = job;
+      this.logger.log(`Created job with ID ${jobId}`);
+      //call unsplash service and handle api errors
+      this.sendJobToUnsplash(job);
+      this.logger.log(
+        `Sent job ID ${jobId} to Unsplash service for image retrieval`,
+      );
+      return job;
+    } catch (error) {
+      this.logger.error(`Failed to create new job`, error);
+      throw new RpcException({
+        status: HttpStatusCode.InternalServerError,
+        message: error.message,
+      });
+    }
   }
 
   getAllJobs() {
-    this.logger.log('Retrieving all jobs');
-    return Object.values(this.jobs);
+    try {
+      this.logger.log('Retrieving all jobs');
+      return Object.values(this.jobs);
+    } catch (error) {
+      this.logger.error('Failed to retrieve all jobs', error);
+      throw new RpcException({
+        status: HttpStatusCode.InternalServerError,
+        error: 'Internal server error',
+      });
+    }
   }
 
   getJobById(jobId: string) {
     this.logger.log(`Retrieveing job of id - ${jobId}`);
     if (!this.jobs[jobId]) {
       this.logger.error(`No job of id - ${jobId} found`);
-      throw new NotFoundException(`Job with ID ${jobId} not found`);
+      throw new RpcException({
+        status: HttpStatusCode.NotFound,
+        message: `Job with ID ${jobId} not found`,
+      });
     }
     return this.jobs[jobId];
   }

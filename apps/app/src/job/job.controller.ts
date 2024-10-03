@@ -9,13 +9,17 @@ import {
   Logger,
   Param,
   Post,
+  UseFilters,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { firstValueFrom } from 'rxjs';
+import { RpcToHttpExceptionFilter } from '../common/filters/rpc-to-http-exception.filter';
 
 @Controller('jobs')
+@UseFilters(RpcToHttpExceptionFilter)
 export class JobController {
   private readonly logger = new Logger(JobController.name);
   constructor(@Inject('JOB_SERVICE') private jobService: ClientProxy) {}
@@ -26,9 +30,9 @@ export class JobController {
   async getAllJobs(): Promise<Job[]> {
     try {
       this.logger.log('Relaying fetch all jobs request to job-microservice');
-      const jobResponse = await this.jobService
-        .send({ cmd: JobServiceEvents.GetAllJobs }, {})
-        .toPromise();
+      const jobResponse = await firstValueFrom(
+        this.jobService.send({ cmd: JobServiceEvents.GetAllJobs }, {}),
+      );
 
       this.logger.log(`Successfully fetched ${jobResponse.length} jobs`);
       return jobResponse;
@@ -50,9 +54,12 @@ export class JobController {
       this.logger.log(
         `Relaying fetch job request for ID: ${id} to job-microservice`,
       );
-      const jobResponse = await this.jobService
-        .send({ cmd: JobServiceEvents.GetJobById }, { jobId: id })
-        .toPromise();
+      const jobResponse = await firstValueFrom(
+        this.jobService.send(
+          { cmd: JobServiceEvents.GetJobById },
+          { jobId: id },
+        ),
+      );
 
       this.logger.log(`Successfully fetched job with ID: ${jobResponse.id}`);
       return jobResponse;
@@ -75,9 +82,9 @@ export class JobController {
       this.logger.log(
         `Relaying create job request with name: ${payload.name} to job-microservice`,
       );
-      const jobResponse = await this.jobService
-        .send({ cmd: JobServiceEvents.CreateJob }, payload)
-        .toPromise();
+      const jobResponse = await firstValueFrom(
+        this.jobService.send({ cmd: JobServiceEvents.CreateJob }, payload),
+      );
 
       this.logger.log(`Successfully created job with ID: ${jobResponse.id}`);
       return jobResponse;

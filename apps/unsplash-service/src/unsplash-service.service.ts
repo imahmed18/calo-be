@@ -1,17 +1,16 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
-import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { Job } from '@app/shared/models/job';
 import { ClientProxy } from '@nestjs/microservices';
 import { JobServiceEvents } from '@app/shared/enums/events';
+import { SharedService } from '@app/shared';
 
 @Injectable()
 export class UnsplashServiceService {
   private readonly logger = new Logger(UnsplashServiceService.name);
   constructor(
-    private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly sharedService: SharedService,
     @Inject('JOB_SERVICE') private jobService: ClientProxy,
   ) {}
 
@@ -48,17 +47,7 @@ export class UnsplashServiceService {
     const url = `https://api.unsplash.com/photos/random/?client_id=${clientId}&query=${category}`;
     this.logger.log(`Retrieving image for category: ${category}`);
 
-    try {
-      const response = this.httpService.get(url);
-      const result = await lastValueFrom(response);
-      this.logger.log(`Image retrieved successfully for category: ${category}`);
-      return result.data;
-    } catch (error) {
-      this.logger.error(
-        `Failed to retrieve image for category ${category}: ${error.message}`,
-        error.stack,
-      );
-      throw new Error(`Failed to retrieve image: ${error.message}`);
-    }
+    const res = await this.sharedService.makeApiRequest('GET', url, {});
+    return res.data;
   }
 }

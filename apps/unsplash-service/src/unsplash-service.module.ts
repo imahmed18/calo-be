@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common';
 import { UnsplashServiceController } from './unsplash-service.controller';
 import { UnsplashServiceService } from './unsplash-service.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { HttpModule } from '@nestjs/axios';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
+import { SharedModule } from '@app/shared';
 
 @Module({
   imports: [
-    HttpModule,
+    SharedModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: './.env',
