@@ -29,8 +29,8 @@ export class JobServiceService {
 
       this.jobs[jobId] = job;
       this.logger.log(`Created job with ID ${jobId}`);
-      //call unsplash service and handle api errors
-      this.sendJobToUnsplash(job);
+
+      this.delayUnsplashCall(job);
       this.logger.log(
         `Sent job ID ${jobId} to Unsplash service for image retrieval`,
       );
@@ -67,6 +67,22 @@ export class JobServiceService {
       });
     }
     return this.jobs[jobId];
+  }
+
+  private delayUnsplashCall(job: Job) {
+    // Generate a random delay between 5 seconds and 5 minutes (in milliseconds)
+    const minDelay = 5 * 1000; // 5 seconds in ms
+    const maxDelay = 5 * 60 * 1000; // 5 minutes in ms
+    const randomDelay =
+      Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
+
+    this.logger.log(
+      `Scheduled to send job ID ${job.id} to Unsplash after ${randomDelay / 1000} seconds`,
+    );
+
+    setTimeout(() => {
+      this.sendJobToUnsplash(job);
+    }, randomDelay);
   }
 
   private sendJobToUnsplash(job: Job) {
