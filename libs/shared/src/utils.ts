@@ -8,7 +8,7 @@ export function acknowledgeMessage(context: RmqContext) {
   channel.ack(message);
 }
 
-export async function sendSynchronousMessage(observable: Observable<any>) {
+export async function getFirstValueOrThrowTimeout(observable: Observable<any>) {
   return await firstValueFrom(
     observable.pipe(
       timeout(30000),

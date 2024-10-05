@@ -16,7 +16,7 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { RpcToHttpExceptionFilter } from '../common/filters/rpc-to-http-exception.filter';
-import { sendSynchronousMessage } from '@app/shared/utils';
+import { getFirstValueOrThrowTimeout } from '@app/shared/utils';
 
 @Controller('jobs')
 @UseFilters(RpcToHttpExceptionFilter)
@@ -30,7 +30,7 @@ export class JobController {
   async getAllJobs(): Promise<Job[]> {
     try {
       this.logger.log('Relaying fetch all jobs request to job-microservice');
-      const jobResponse = await sendSynchronousMessage(
+      const jobResponse = await getFirstValueOrThrowTimeout(
         this.jobService.send({ cmd: JobServiceEvents.GetAllJobs }, {}),
       );
 
@@ -54,7 +54,7 @@ export class JobController {
       this.logger.log(
         `Relaying fetch job request for ID: ${id} to job-microservice`,
       );
-      const jobResponse = await sendSynchronousMessage(
+      const jobResponse = await getFirstValueOrThrowTimeout(
         this.jobService.send(
           { cmd: JobServiceEvents.GetJobById },
           { jobId: id },
@@ -82,7 +82,7 @@ export class JobController {
       this.logger.log(
         `Relaying create job request with name: ${payload.name} to job-microservice`,
       );
-      const jobResponse = await sendSynchronousMessage(
+      const jobResponse = await getFirstValueOrThrowTimeout(
         this.jobService.send({ cmd: JobServiceEvents.CreateJob }, payload),
       );
 
