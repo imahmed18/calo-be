@@ -85,6 +85,7 @@ An **event-driven architecture** complements request-response by introducing **a
 ---
 ### All put together
 
+```mermaid
 sequenceDiagram
     participant API Gateway
     participant Job Service
@@ -118,6 +119,7 @@ sequenceDiagram
     Unsplash Service ->> Unsplash Service: Enrich job with image
     Unsplash Service -->> RabbitMQ: Return enriched job
     RabbitMQ -->> Job Service: job updated event
+```
 
 
 This diagram provides a clear view of how messages flow between the services using RabbitMQ and demonstrates both the request-response and event-driven patterns in the architecture of this project.
