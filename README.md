@@ -5,7 +5,8 @@ This full-stack application was developed to fulfill the test requirements and i
 
 Since this repository contains only the backend code, the primary focus will be on the backend implementation.
 ## Table of Contents 
-- [Quick Start](#quick-start) 
+- [Quick Start](#quick-start)
+- [Manual Start](#manual-starting-steps)
 -  [Architecture](#architecture) 
  - [Code Overview](#code-overview)
 ## Quick Start
@@ -41,6 +42,35 @@ This application is fully dockerized and includes the following services:
     ```
     http://localhost:3002
     ```
+## Manual Starting Steps
+
+In case you want to manually start the services without Docker:
+
+1. **Setup RabbitMQ**:
+   - Ensure RabbitMQ is installed and running.
+   - Configure the environment variables in your `.env` file based on your RabbitMQ credentials.
+
+2. **Start the Job Microservice**:
+   - Navigate to the root folder of the repository.
+   - Run the following command to start the Job Microservice:
+     ```bash
+     npm run start:dev job-microservice
+     ```
+
+3. **Start the Unsplash Service**:
+   - Open a new terminal.
+   - Run the following command to start the Unsplash service:
+     ```bash
+     npm run start:dev unsplash-service
+     ```
+
+4. **Start the Main Application**:
+   - Open another new terminal.
+   - Run the following command to start the main application:
+     ```bash
+     npm run start:dev app
+     ```
+Once the services are running, you can access the API Gateway and other services as described earlier.
 
 ### Services and Ports
 
