@@ -84,6 +84,7 @@ An **event-driven architecture** complements request-response by introducing **a
 
 ---
 ### All put together
+
 sequenceDiagram
     participant API Gateway
     participant Job Service
@@ -138,7 +139,7 @@ Timeout management plays a crucial role in ensuring that requests do not hang in
 Retry mechanisms are essential for enhancing the resilience of service interactions. Transient failures, such as temporary network issues or brief service outages, can often be resolved by simply attempting the request again. By implementing a retry strategy, the application can automatically attempt failed requests a predetermined number of times before giving up.
 	
 	This mechanism is particularly beneficial in scenarios where occasional failures are expected. By logging retries and introducing delays between attempts, the application can reduce the load on services while increasing the likelihood of successful interactions. This not only improves the overall user experience but also helps maintain service availability during peak times or intermittent issues.
-### Partial Failure In Code
+### Partial Failure Handling In Code
 #### 1. Synchronous Message Handling with RPC to HTTP Exception Filter
 
 
