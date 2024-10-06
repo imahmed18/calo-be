@@ -3,7 +3,10 @@ import { UnsplashServiceService } from './unsplash-service.service';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import { Job } from '@app/shared/models/job';
 import { UnsplashServiceEvents } from '@app/shared/enums/events';
-import { acknowledgeMessage } from '@app/shared/utils';
+import {
+  acknowledgeMessage,
+  rejectMessageOrSendToDLQ,
+} from '@app/shared/utils';
 
 @Controller()
 export class UnsplashServiceController {
@@ -25,6 +28,8 @@ export class UnsplashServiceController {
         `Failed to update job ${job.id} with image: ${error.message}`,
         error.stack,
       );
+      rejectMessageOrSendToDLQ(context);
+      throw error;
     }
   }
 }

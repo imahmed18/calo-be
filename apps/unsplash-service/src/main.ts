@@ -12,6 +12,7 @@ async function bootstrap() {
   const PASSWORD = configService.get('RABBITMQ_PASS');
   const HOST = configService.get('RABBITMQ_HOST');
   const QUEUE = configService.get('RABBITMQ_UNSPLASH_QUEUE');
+  const DLQ = configService.get('RABBITMQ_DLQ_QUEUE');
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
@@ -21,6 +22,9 @@ async function bootstrap() {
       queue: QUEUE,
       queueOptions: {
         durable: true,
+        deadLetterExchange: '',
+        deadLetterRoutingKey: DLQ,
+        messageTtl: 60000,
       },
     },
   });

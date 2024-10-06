@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
+import { initializeDLQ } from './utils/queue';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -9,6 +11,9 @@ async function bootstrap() {
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   });
+
+  const configService = app.get(ConfigService);
+  await initializeDLQ(configService);
 
   // Swagger setup
   const config = new DocumentBuilder()

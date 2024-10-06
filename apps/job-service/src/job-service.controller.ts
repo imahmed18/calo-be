@@ -10,7 +10,10 @@ import {
 import { CreateJobDto } from '@app/shared/dtos/jobs/create-job.dto';
 import { Job } from '@app/shared/models/job';
 import { JobServiceEvents } from '@app/shared/enums/events';
-import { acknowledgeMessage } from '@app/shared/utils';
+import {
+  acknowledgeMessage,
+  rejectMessageOrSendToDLQ,
+} from '@app/shared/utils';
 
 @Controller()
 export class JobServiceController {
@@ -27,6 +30,7 @@ export class JobServiceController {
       acknowledgeMessage(context);
       return response;
     } catch (error) {
+      rejectMessageOrSendToDLQ(context);
       throw error;
     }
   }
@@ -44,6 +48,7 @@ export class JobServiceController {
       acknowledgeMessage(context);
       return response;
     } catch (error) {
+      rejectMessageOrSendToDLQ(context);
       throw error;
     }
   }
@@ -61,16 +66,22 @@ export class JobServiceController {
       acknowledgeMessage(context);
       return response;
     } catch (error) {
+      rejectMessageOrSendToDLQ(context);
       throw error;
     }
   }
 
   @EventPattern(JobServiceEvents.UpdateJob)
   async updateJob(@Ctx() context: RmqContext, @Payload() updatedJob: Job) {
-    this.logger.log(
-      `${JobServiceEvents.UpdateJob} event received: Updating job with ID: ${updatedJob.id}`,
-    );
-    this.jobServiceService.updateJobWithImage(updatedJob);
-    acknowledgeMessage(context);
+    try {
+      this.logger.log(
+        `${JobServiceEvents.UpdateJob} event received: Updating job with ID: ${updatedJob.id}`,
+      );
+      this.jobServiceService.updateJobWithImage(updatedJob);
+      acknowledgeMessage(context);
+    } catch (error) {
+      rejectMessageOrSendToDLQ(context);
+      throw error;
+    }
   }
 }
