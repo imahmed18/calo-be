@@ -1,3 +1,4 @@
+
 **
 
 # Calo Jobs Microservice with Unsplash API
@@ -172,6 +173,29 @@ Retry mechanisms are essential for enhancing the resilience of service interacti
 	
 	This mechanism is particularly beneficial in scenarios where occasional failures are expected. By logging retries and introducing delays between attempts, the application can reduce the load on services while increasing the likelihood of successful interactions. This not only improves the overall user experience but also helps maintain service availability during peak times or intermittent issues.
 ### Partial Failure Handling In Code
+```mermaid
+flowchart TD
+    %% Initial Message Processing
+    Queue -->|Message received| Consumer
+    Consumer -->|Process message| Success[Success]
+    Success -->|Acknowledge| Queue
+
+    %% Retry Mechanism
+    Consumer -->|Nack first failure| DLX[Dead Letter Exchange]
+    DLX -->|Requeue after TTL| Queue
+    Queue -->|Retry message| Consumer
+
+    %% Dead Letter Queue
+    Consumer -->|Nack second failure| DLQ[Dead Letter Queue]
+    DLQ -->|Store failed message| DLQ[Dead Letter Queue]
+
+    %% Labels for clarity
+    classDef success fill:#9f6,stroke:#333,stroke-width:2px;
+    classDef fail fill:#f66,stroke:#333,stroke-width:2px;
+
+    class DLX fail;
+    class DLQ fail;
+```
 #### 1. Synchronous Message Handling with RPC to HTTP Exception Filter
 
 
@@ -228,6 +252,9 @@ Timeout management integrates seamlessly with the broader error handling strateg
 -   **Retry Logic**: In cases of timeouts, the application can implement a retry strategy that attempts to resend the request after a timeout occurs. This can help mitigate transient issues and improve overall service availability.
     
 -   **Logging and Monitoring**: Timeouts can be logged for monitoring purposes, allowing teams to analyze patterns over time. This data can be invaluable for identifying systemic issues within services and improving performance.
+
+#### 4. **Dead Letter Queue (DLQ)**
+If a message fails to be processed after multiple retries, it is sent to a **Dead Letter Queue (DLQ)**, ensuring that failed messages are not lost. The DLQ acts as a repository for messages that could not be successfully processed, allowing for further analysis or manual intervention. This ensures that errors are not silently ignored, and proper actions can be taken to address the underlying issues.
 
 ---
 
