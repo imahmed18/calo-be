@@ -20,11 +20,12 @@ export class JobServiceController {
   @MessagePattern({ cmd: JobServiceEvents.GetAllJobs })
   async getAllJobs(@Ctx() context: RmqContext): Promise<Job[]> {
     try {
-      acknowledgeMessage(context);
       this.logger.log(
         `${JobServiceEvents.GetAllJobs} event received: Fetching all jobs`,
       );
-      return this.jobServiceService.getAllJobs();
+      const response = this.jobServiceService.getAllJobs();
+      acknowledgeMessage(context);
+      return response;
     } catch (error) {
       throw error;
     }
@@ -36,11 +37,12 @@ export class JobServiceController {
     @Payload() payload: { jobId: string },
   ): Promise<Job> {
     try {
-      acknowledgeMessage(context);
       this.logger.log(
         `${JobServiceEvents.GetJobById} event received: Fetching job with id: ${payload.jobId}`,
       );
-      return this.jobServiceService.getJobById(payload.jobId);
+      const response = this.jobServiceService.getJobById(payload.jobId);
+      acknowledgeMessage(context);
+      return response;
     } catch (error) {
       throw error;
     }
@@ -52,21 +54,23 @@ export class JobServiceController {
     @Payload() payload: CreateJobDto,
   ): Promise<Job> {
     try {
-      acknowledgeMessage(context);
       this.logger.log(
         `${JobServiceEvents.CreateJob} event received: Creating job with name: ${payload.name}`,
       );
-      return await this.jobServiceService.createJob(payload);
+      const response = await this.jobServiceService.createJob(payload);
+      acknowledgeMessage(context);
+      return response;
     } catch (error) {
       throw error;
     }
   }
 
   @EventPattern(JobServiceEvents.UpdateJob)
-  async updateJob(@Payload() updatedJob: Job) {
+  async updateJob(@Ctx() context: RmqContext, @Payload() updatedJob: Job) {
     this.logger.log(
       `${JobServiceEvents.UpdateJob} event received: Updating job with ID: ${updatedJob.id}`,
     );
     this.jobServiceService.updateJobWithImage(updatedJob);
+    acknowledgeMessage(context);
   }
 }

@@ -15,11 +15,11 @@ export class UnsplashServiceController {
   @EventPattern(UnsplashServiceEvents.EnrichJobWIthImage)
   async updateJobWithImage(@Payload() job: Job, @Ctx() context: RmqContext) {
     try {
-      acknowledgeMessage(context);
       this.logger.log(
         `${UnsplashServiceEvents.EnrichJobWIthImage} event received: enriching job of id - ${job.id} with image`,
       );
       this.unsplashServiceService.updateJobWithImage(job);
+      acknowledgeMessage(context);
     } catch (error) {
       this.logger.error(
         `Failed to update job ${job.id} with image: ${error.message}`,
