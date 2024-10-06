@@ -10,6 +10,7 @@ Since this repository contains only the backend code, the primary focus will be 
 - [Manual Start](#manual-starting-steps)
 -  [Architecture](#architecture) 
  - [Code Overview](#code-overview)
+ - [Challenges and Time Taken](#challenges-and-time-taken)
 ## Quick Start
 
 This application is fully dockerized and includes the following services:
@@ -313,6 +314,14 @@ The `libs/shared` directory is designed for reusability across multiple services
 
 This modular and scalable folder structure lays the foundation for developing, deploying, and maintaining the project in a microservices architecture.
 
+## Challenges and Time Taken
 
+### Challenges
+
+The main challenge during the project was designing an architecture that balances simplicity with scalability, extensibility, and fault tolerance. It was essential to ensure that the architecture could handle future growth and modifications without becoming overly complex or simply being an overkill. Striking this balance required careful consideration of design patterns and architectural principles to avoid over-engineering the solution while still addressing potential use cases and ensuring reliability.
+
+### Time Taken
+
+The total time invested in the project was approximately **12 to 14 hours**, spread over several days. Each day involved **2 to 3 hours of focused work**, allowing for thorough development and testing while managing other commitments. This structured approach facilitated a steady progression through the various stages of the project, from planning and design to implementation and testing.
 
 **
